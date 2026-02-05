@@ -1,0 +1,13 @@
+{
+    "$schema": "https://www.flowlauncher.com/schemas/plugin.schema.json",
+    "ID": "70A1485CEAE94735BC2DF93501A70916",
+    "ActionKeyword": "po",
+    "Name": "Pomodoro",
+    "Description": "A pomodoro plugin for Flow Launcher",
+    "Author": "fmerlung",
+    "Version": "1.0.0",
+    "Language": "csharp",
+    "Website": "https://github.com/fmerlung/Flow.Launcher.Plugin.Pomodoro",
+    "IcoPath": "icon.png",
+    "ExecuteFileName": "Flow.Launcher.Plugin.Pomodoro.dll"
+}
