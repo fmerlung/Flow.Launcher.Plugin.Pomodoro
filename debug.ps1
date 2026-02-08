@@ -1,4 +1,4 @@
-dotnet publish Flow.Launcher.Plugin.Pomodoro -c Debug -r win-x64 --no-self-contained
+dotnet publish ../Flow.Launcher.Plugin.Pomodoro -c Debug -r win-x64 --no-self-contained
 
 $AppDataFolder = [Environment]::GetFolderPath("ApplicationData")
 $flowLauncherExe = "$env:LOCALAPPDATA\FlowLauncher\Flow.Launcher.exe"
@@ -11,7 +11,7 @@ if (Test-Path $flowLauncherExe) {
         Remove-Item -Recurse -Force "$AppDataFolder\FlowLauncher\Plugins\Pomodoro"
     }
 
-    Copy-Item "Flow.Launcher.Plugin.Pomodoro\bin\Debug\win-x64\publish" "$AppDataFolder\FlowLauncher\Plugins\" -Recurse -Force
+    Copy-Item "..\Flow.Launcher.Plugin.Pomodoro\bin\Debug\win-x64\publish" "$AppDataFolder\FlowLauncher\Plugins\" -Recurse -Force
     Rename-Item -Path "$AppDataFolder\FlowLauncher\Plugins\publish" -NewName "Pomodoro"
 
     Start-Sleep -Seconds 2
