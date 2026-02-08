@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Flow.Launcher.Plugin;
 using Microsoft.Toolkit.Uwp.Notifications;
@@ -52,12 +53,12 @@ namespace Flow.Launcher.Plugin.Pomodoro
             }
             else
             {
-                result.Title = $"{this.currentMode}\t{GetTimeLeft()}";
+                result.Title = $"{this.currentMode} {GetTimeLeft()}";
             }
 
             if (query.Search.ToLower() == "start")
             {
-                result.Title = $"start";
+                result.Title = $"Start";
                 result.SubTitle = $"Start session";
                 result.Action = e =>
                 {
@@ -69,12 +70,16 @@ namespace Flow.Launcher.Plugin.Pomodoro
 
             if (query.Search.ToLower() == "stop")
             {
-                this.isRunning = false;
-                result.Title = $"stop";
+                result.Title = $"Stop";
                 result.SubTitle = $"Stop session";
                 result.Action = e =>
                 {
-                    this.isRunning = true;
+                    this.isRunning = false;
+                    this.currentMode = Mode.INIT;
+                    new ToastContentBuilder()
+                        .AddText("Session stopped!")
+                        .Show();
+
                     this.timer.Change(Timeout.Infinite, Timeout.Infinite);
                     return true;
                 };
@@ -82,8 +87,8 @@ namespace Flow.Launcher.Plugin.Pomodoro
 
             if (query.Search.ToLower() == "skip")
             {
-                result.Title = $"skip";
-                result.SubTitle = $"skip to next work/break";
+                result.Title = $"Skip";
+                result.SubTitle = $"Skip to next pomodoro or break";
                 result.Action = e =>
                 {
                     StartTimer();
@@ -112,9 +117,11 @@ namespace Flow.Launcher.Plugin.Pomodoro
             if (this.currentMode == Mode.INIT) return "INIT";
 
             TimeSpan timeSpent = DateTime.Now - this.timeSinceModeStart;
-            TimeSpan timeLeft = TimeSpan.FromMinutes(currentMode == Mode.WORK ? workDurationMins/60/1000 : breakDurationMins/60/1000) - timeSpent;
+            TimeSpan timeLeft = TimeSpan.FromMinutes(currentMode == Mode.WORK ? workDurationMins / 60 / 1000 : breakDurationMins / 60 / 1000) - timeSpent;
 
-            return $"{timeLeft.Minutes}:{timeLeft.Seconds}";
+
+
+            return $"{timeLeft.Minutes.ToString().PadLeft(2, '0')}:{timeLeft.Seconds.ToString().PadLeft(2, '0')}";
         }
 
         private void StartTimer()

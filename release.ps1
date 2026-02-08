@@ -1,2 +1,2 @@
 dotnet publish ../Flow.Launcher.Plugin.Pomodoro -c Release -r win-x64 --no-self-contained
-Compress-Archive -LiteralPath ../Flow.Launcher.Plugin.Pomodoro/bin/Release/win-x64/publish -DestinationPath ../Flow.Launcher.Plugin.Pomodoro/bin/Pomodoro.zip -Force
+Compress-Archive -Path ../Flow.Launcher.Plugin.Pomodoro/bin/Release/win-x64/publish/* -DestinationPath ../Flow.Launcher.Plugin.Pomodoro/bin/Pomodoro.zip -Force
