@@ -15,6 +15,7 @@ namespace Flow.Launcher.Plugin.Pomodoro
         private int workDurationMins = 25 * 60 * 1000;
         private int breakDurationMins = 5 * 60 * 1000;
         private Timer timer;
+        //private ResultFactory resultFactory = new ResultFactory();
         private bool isRunning = false;
 
         private DateTime timeSinceModeStart;
