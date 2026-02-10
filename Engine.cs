@@ -19,7 +19,6 @@ public class Engine
     private int _workDurationMins = 25;
     private int _breakDurationMins = 5;
     private DateTime _timeSincePhaseStart;
-
     private enum Phase
     {
         INIT,
@@ -33,7 +32,6 @@ public class Engine
         { Phase.BREAK, Phase.WORK },
         { Phase.INIT, Phase.WORK }
     };
-
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Engine"/> class.
@@ -70,22 +68,19 @@ public class Engine
 
     private void SwitchTimerToNextPhase()
     {
-        ToastContentBuilder toast = new ToastContentBuilder();
-
         _currentPhase = _getNextPhase[_currentPhase];
         _timeSincePhaseStart = DateTime.Now;
 
         if (_currentPhase == Phase.WORK)
         {
             StartTimer(_workDurationMins);
-            toast.AddText("Work start!");
+            NotificationManager.Show("Work start!");
         }
         else
         {
             StartTimer(_breakDurationMins);
-            toast.AddText("Time for a break!");
+            NotificationManager.Show("Break start!");
         }
-        toast.Show();
     }
 
     /// <summary>
@@ -95,19 +90,17 @@ public class Engine
     {
         IsRunning = true;
 
-        ToastContentBuilder toast = new ToastContentBuilder();
         if (_currentPhase == Phase.INIT)
         {
             _currentPhase = Phase.WORK;
             _timeSincePhaseStart = DateTime.Now;
             StartTimer(_workDurationMins);
-            toast.AddText("Session started!");
+            NotificationManager.Show("Session started!");
         }
         else
         {
-            toast.AddText("Session already in progress!");
+            NotificationManager.Show("Session already in progress!");
         }
-        toast.Show();
     }
 
     /// <summary>
@@ -117,19 +110,16 @@ public class Engine
     {
         IsRunning = false;
 
-        ToastContentBuilder toast = new ToastContentBuilder();
         if (_currentPhase == Phase.INIT)
         {
-            toast.AddText("No session in progress!");
-            toast.Show();
+            NotificationManager.Show("No session in progress!");
             return;
         }
 
         _currentPhase = Phase.INIT;
         StopTimer();
 
-        toast.AddText("Session stopped!");
-        toast.Show();
+        NotificationManager.Show("Session stopped!");
     }
 
     /// <summary>
@@ -137,21 +127,19 @@ public class Engine
     /// </summary>
     public void SkipSession()
     {
-        ToastContentBuilder toast = new ToastContentBuilder();
         _currentPhase = _getNextPhase[_currentPhase];
         _timeSincePhaseStart = DateTime.Now;
 
         if (_currentPhase == Phase.WORK)
         {
             StartTimer(_workDurationMins);
-            toast.AddText("Skipped to work!");
+            NotificationManager.Show("Skipped to work!");
         }
         else
         {
             StartTimer(_breakDurationMins);
-            toast.AddText("Skipped to break!");
+            NotificationManager.Show("Skipped to break!");
         }
-        toast.Show();
     }
 
 
