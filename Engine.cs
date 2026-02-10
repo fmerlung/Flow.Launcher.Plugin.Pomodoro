@@ -18,21 +18,33 @@ public class Engine
     /// Indicates whether the current session is paused.
     /// </summary>
     public bool IsPaused { get; private set; } = false;
+    /// <summary>
+    /// Represents the different phases of the Pomodoro timer.
+    /// </summary>
+    public enum Phase
+    {
+        /// <summary>
+        /// Initial phase before any work begins.
+        /// </summary>
+        INIT,
+        /// <summary>
+        /// The work aka "pomodoro' phase.
+        /// </summary>
+        WORK,
+        /// <summary>
+        /// The break phase.
+        /// </summary>
+        BREAK
+    }
     private Phase _currentPhase = Phase.INIT;
     private Timer _timer;
-    public Dictionary<Phase, int> PhaseDurationsSeconds {get; set;} = new Dictionary<Phase, int>
+    private Dictionary<Phase, int> _phaseDurationsSeconds = new Dictionary<Phase, int>
     {
-        { Phase.WORK, 1 * 60 },
-        { Phase.BREAK, 1 * 60}
+        { Phase.WORK, 25 * 60 },
+        { Phase.BREAK, 5 * 60}
     };
     private DateTime _phaseStartTime;
     private TimeSpan _elapsedTimeInPhase = TimeSpan.Zero;
-    private enum Phase
-    {
-        INIT,
-        WORK,
-        BREAK
-    }
 
     private readonly Dictionary<Phase, Phase> _getNextPhase = new Dictionary<Phase, Phase>
     {
@@ -60,11 +72,11 @@ public class Engine
         TimeSpan timeLeft;
         if (IsPaused)
         {
-            timeLeft = TimeSpan.FromMinutes(PhaseDurationsSeconds[_currentPhase]) - _elapsedTimeInPhase;
+            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - _elapsedTimeInPhase;
         }
         else
         {
-            timeLeft = TimeSpan.FromMinutes(PhaseDurationsSeconds[_currentPhase]) - (DateTime.Now - _phaseStartTime + _elapsedTimeInPhase);
+            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - (DateTime.Now - _phaseStartTime + _elapsedTimeInPhase);
         }
 
         return $"{timeLeft.Minutes.ToString().PadLeft(2, '0')}:{timeLeft.Seconds.ToString().PadLeft(2, '0')}";
@@ -85,7 +97,7 @@ public class Engine
         _phaseStartTime = DateTime.Now;
         _elapsedTimeInPhase = TimeSpan.Zero;
 
-        StartTimer(PhaseDurationsSeconds[_currentPhase]);
+        StartTimer(_phaseDurationsSeconds[_currentPhase]);
         NotificationManager.Show($"{_currentPhase.ToString().ToUpperInvariant()} start!");
     }
 
@@ -101,15 +113,14 @@ public class Engine
             _currentPhase = Phase.WORK;
             _phaseStartTime = DateTime.Now;
             _elapsedTimeInPhase = TimeSpan.Zero;
-            StartTimer(PhaseDurationsSeconds[_currentPhase]);
+            StartTimer(_phaseDurationsSeconds[_currentPhase]);
             NotificationManager.Show("Session started!");
         }
         else if (IsPaused)
         {
             IsPaused = false;
             _phaseStartTime = DateTime.Now;
-            // this is a bad way of converting elapsed time to minutes, but it works for now
-            StartTimer(PhaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
+            StartTimer(_phaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
             NotificationManager.Show("Session resumed!");
         }
         else
@@ -154,7 +165,7 @@ public class Engine
         _elapsedTimeInPhase = TimeSpan.Zero;
         IsPaused = false;
 
-        StartTimer(PhaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
+        StartTimer(_phaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
         NotificationManager.Show($"Skipped to {_currentPhase.ToString().ToLower()}!");
 
     }
@@ -168,6 +179,19 @@ public class Engine
         _elapsedTimeInPhase += DateTime.Now - _phaseStartTime;
         StopTimer();
         NotificationManager.Show("Session paused!");
+    }
+
+    /// <summary>
+    /// Sets the duration for a specific phase.
+    /// </summary>
+    /// <param name="phase">Phase to set the duration for</param>
+    /// <param name="minutes">Duration in minutes</param>
+    public void SetPhaseDuration(Phase phase, int minutes)
+    {
+        if (_phaseDurationsSeconds.ContainsKey(phase))
+        {
+            _phaseDurationsSeconds[phase] = minutes * 60;
+        }
     }
 
     private void TimerCallback(object state)
