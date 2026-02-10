@@ -14,11 +14,21 @@ public class Engine
     /// Indicates whether a session is in progress.
     /// </summary>
     public bool IsRunning { get; private set; } = false;
+    /// <summary>
+    /// Indicates whether the current session is paused.
+    /// </summary>
+    public bool IsPaused { get; private set; } = false;
     private Phase _currentPhase = Phase.INIT;
     private Timer _timer;
     private int _workDurationMins = 25;
     private int _breakDurationMins = 5;
-    private DateTime _timeSincePhaseStart;
+    private Dictionary<Phase, int> _phaseDurations = new Dictionary<Phase, int>
+    {
+        { Phase.WORK, 25 },
+        { Phase.BREAK, 5 }
+    };
+    private DateTime _phaseStartTime;
+    private TimeSpan _elapsedTimeInPhase;
     private enum Phase
     {
         INIT,
@@ -47,12 +57,17 @@ public class Engine
     /// <returns>Minutes and seconds in formatted into a string</returns>
     public string GetTimeLeft()
     {
-        if (_currentPhase == Phase.INIT) return "ERROR: No session";
+        if (_currentPhase == Phase.INIT) return "No session";
 
-        TimeSpan timeSpent = DateTime.Now - _timeSincePhaseStart;
-        TimeSpan timeLeft = TimeSpan.FromMinutes(_currentPhase == Phase.WORK ?
-        _workDurationMins :
-         _breakDurationMins) - timeSpent;
+        TimeSpan timeLeft;
+        if (IsPaused)
+        {
+            timeLeft = TimeSpan.FromMinutes(_phaseDurations[_currentPhase]) - _elapsedTimeInPhase;
+        }
+        else
+        {
+            timeLeft = TimeSpan.FromMinutes(_phaseDurations[_currentPhase]) - (DateTime.Now - _phaseStartTime + _elapsedTimeInPhase);
+        }
 
         return $"{timeLeft.Minutes.ToString().PadLeft(2, '0')}:{timeLeft.Seconds.ToString().PadLeft(2, '0')}";
     }
@@ -69,7 +84,8 @@ public class Engine
     private void SwitchTimerToNextPhase()
     {
         _currentPhase = _getNextPhase[_currentPhase];
-        _timeSincePhaseStart = DateTime.Now;
+        _phaseStartTime = DateTime.Now;
+        _elapsedTimeInPhase = TimeSpan.Zero;
 
         if (_currentPhase == Phase.WORK)
         {
@@ -93,9 +109,17 @@ public class Engine
         if (_currentPhase == Phase.INIT)
         {
             _currentPhase = Phase.WORK;
-            _timeSincePhaseStart = DateTime.Now;
+            _phaseStartTime = DateTime.Now;
+            _elapsedTimeInPhase = TimeSpan.Zero;
             StartTimer(_workDurationMins);
             NotificationManager.Show("Session started!");
+        }
+        else if (IsPaused)
+        {
+            IsPaused = false;
+            _phaseStartTime = DateTime.Now;
+            StartTimer(_workDurationMins * 60 - (int)_elapsedTimeInPhase.TotalSeconds);
+            NotificationManager.Show("Session resumed!");
         }
         else
         {
@@ -109,6 +133,7 @@ public class Engine
     public void StopSession()
     {
         IsRunning = false;
+        IsPaused = false;
 
         if (_currentPhase == Phase.INIT)
         {
@@ -127,8 +152,18 @@ public class Engine
     /// </summary>
     public void SkipSession()
     {
+        if (_currentPhase == Phase.INIT)
+        {
+            NotificationManager.Show("No session in progress!");
+            return;
+        }
+
         _currentPhase = _getNextPhase[_currentPhase];
-        _timeSincePhaseStart = DateTime.Now;
+        _phaseStartTime = DateTime.Now;
+        _elapsedTimeInPhase = TimeSpan.Zero;
+        IsPaused = false;
+
+        // For some reason skipping starts next phase paused.
 
         if (_currentPhase == Phase.WORK)
         {
@@ -142,6 +177,16 @@ public class Engine
         }
     }
 
+    /// <summary>
+    /// Pauses the current session.
+    /// </summary>
+    public void PauseSession()
+    {
+        IsPaused = true;
+        _elapsedTimeInPhase += DateTime.Now - _phaseStartTime;
+        StopTimer();
+        NotificationManager.Show("Session paused!");
+    }
 
     private void TimerCallback(object state)
     {
@@ -152,6 +197,7 @@ public class Engine
     {
         _timer.Change(durationMins * 60 * 1000, Timeout.Infinite);
     }
+
     private void StopTimer()
     {
         _timer.Change(Timeout.Infinite, Timeout.Infinite);
