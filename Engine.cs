@@ -116,12 +116,20 @@ public class Engine
     public void StopSession()
     {
         IsRunning = false;
+
+        ToastContentBuilder toast = new ToastContentBuilder();
+        if (_currentPhase == Phase.INIT)
+        {
+            toast.AddText("No session in progress!");
+            toast.Show();
+            return;
+        }
+
         _currentPhase = Phase.INIT;
         StopTimer();
 
-        new ToastContentBuilder()
-            .AddText("Session stopped!")
-            .Show();
+        toast.AddText("Session stopped!");
+        toast.Show();
     }
 
     /// <summary>
