@@ -20,15 +20,13 @@ public class Engine
     public bool IsPaused { get; private set; } = false;
     private Phase _currentPhase = Phase.INIT;
     private Timer _timer;
-    private int _workDurationMins = 25;
-    private int _breakDurationMins = 5;
-    private Dictionary<Phase, int> _phaseDurations = new Dictionary<Phase, int>
+    public Dictionary<Phase, int> PhaseDurationsSeconds {get; set;} = new Dictionary<Phase, int>
     {
-        { Phase.WORK, 25 },
-        { Phase.BREAK, 5 }
+        { Phase.WORK, 1 * 60 },
+        { Phase.BREAK, 1 * 60}
     };
     private DateTime _phaseStartTime;
-    private TimeSpan _elapsedTimeInPhase;
+    private TimeSpan _elapsedTimeInPhase = TimeSpan.Zero;
     private enum Phase
     {
         INIT,
@@ -62,11 +60,11 @@ public class Engine
         TimeSpan timeLeft;
         if (IsPaused)
         {
-            timeLeft = TimeSpan.FromMinutes(_phaseDurations[_currentPhase]) - _elapsedTimeInPhase;
+            timeLeft = TimeSpan.FromMinutes(PhaseDurationsSeconds[_currentPhase]) - _elapsedTimeInPhase;
         }
         else
         {
-            timeLeft = TimeSpan.FromMinutes(_phaseDurations[_currentPhase]) - (DateTime.Now - _phaseStartTime + _elapsedTimeInPhase);
+            timeLeft = TimeSpan.FromMinutes(PhaseDurationsSeconds[_currentPhase]) - (DateTime.Now - _phaseStartTime + _elapsedTimeInPhase);
         }
 
         return $"{timeLeft.Minutes.ToString().PadLeft(2, '0')}:{timeLeft.Seconds.ToString().PadLeft(2, '0')}";
@@ -87,16 +85,8 @@ public class Engine
         _phaseStartTime = DateTime.Now;
         _elapsedTimeInPhase = TimeSpan.Zero;
 
-        if (_currentPhase == Phase.WORK)
-        {
-            StartTimer(_workDurationMins);
-            NotificationManager.Show("Work start!");
-        }
-        else
-        {
-            StartTimer(_breakDurationMins);
-            NotificationManager.Show("Break start!");
-        }
+        StartTimer(PhaseDurationsSeconds[_currentPhase]);
+        NotificationManager.Show($"{_currentPhase.ToString().ToUpperInvariant()} start!");
     }
 
     /// <summary>
@@ -111,14 +101,15 @@ public class Engine
             _currentPhase = Phase.WORK;
             _phaseStartTime = DateTime.Now;
             _elapsedTimeInPhase = TimeSpan.Zero;
-            StartTimer(_workDurationMins);
+            StartTimer(PhaseDurationsSeconds[_currentPhase]);
             NotificationManager.Show("Session started!");
         }
         else if (IsPaused)
         {
             IsPaused = false;
             _phaseStartTime = DateTime.Now;
-            StartTimer(_workDurationMins * 60 - (int)_elapsedTimeInPhase.TotalSeconds);
+            // this is a bad way of converting elapsed time to minutes, but it works for now
+            StartTimer(PhaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
             NotificationManager.Show("Session resumed!");
         }
         else
@@ -163,18 +154,9 @@ public class Engine
         _elapsedTimeInPhase = TimeSpan.Zero;
         IsPaused = false;
 
-        // For some reason skipping starts next phase paused.
+        StartTimer(PhaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
+        NotificationManager.Show($"Skipped to {_currentPhase.ToString().ToLower()}!");
 
-        if (_currentPhase == Phase.WORK)
-        {
-            StartTimer(_workDurationMins);
-            NotificationManager.Show("Skipped to work!");
-        }
-        else
-        {
-            StartTimer(_breakDurationMins);
-            NotificationManager.Show("Skipped to break!");
-        }
     }
 
     /// <summary>
@@ -193,9 +175,9 @@ public class Engine
         SwitchTimerToNextPhase();
     }
 
-    private void StartTimer(int durationMins)
+    private void StartTimer(int durationSeconds)
     {
-        _timer.Change(durationMins * 60 * 1000, Timeout.Infinite);
+        _timer.Change(durationSeconds * 1000, Timeout.Infinite);
     }
 
     private void StopTimer()
