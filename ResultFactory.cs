@@ -35,7 +35,7 @@ public class ResultFactory
         }
         else
         {
-            result.Title = $"{_engine.GetCurrentPhase()} {_engine.GetTimeLeft()}";
+            result.Title = $"{(_engine.IsPaused ? "PAUSED " : "")}{_engine.GetCurrentPhase()} {_engine.GetTimeLeft()}";
         }
 
         if (query.Search.ToLower() == "start")
@@ -67,6 +67,17 @@ public class ResultFactory
             result.Action = e =>
             {
                 _engine.SkipSession();
+                return true;
+            };
+        }
+
+        if (query.Search.ToLower() == "pause")
+        {
+            result.Title = $"Pause";
+            result.SubTitle = $"Pause session";
+            result.Action = e =>
+            {
+                _engine.PauseSession();
                 return true;
             };
         }
