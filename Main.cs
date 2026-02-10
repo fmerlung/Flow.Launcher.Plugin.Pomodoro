@@ -5,153 +5,32 @@ using System.Threading;
 using Flow.Launcher.Plugin;
 using Microsoft.Toolkit.Uwp.Notifications;
 
-#pragma warning disable 1591
-
 namespace Flow.Launcher.Plugin.Pomodoro
 {
+    /// <summary>
+    /// The main class for the Pomodoro plugin, passing queries and returning results.
+    /// </summary>
     public class Pomodoro : IPlugin
     {
         private PluginInitContext _context;
-        private int workDurationMins = 25 * 60 * 1000;
-        private int breakDurationMins = 5 * 60 * 1000;
-        private Timer timer;
-        //private ResultFactory resultFactory = new ResultFactory();
-        private bool isRunning = false;
+        private Engine _engine;
+        private ResultFactory _resultFactory;
 
-        private DateTime timeSinceModeStart;
-
-        private enum Mode
-        {
-            INIT,
-            WORK,
-            BREAK
-        }
-
-        private Mode currentMode;
-        Dictionary<Mode, Mode> nextMode = new Dictionary<Mode, Mode>
-        {
-            { Mode.WORK, Mode.BREAK },
-            { Mode.BREAK, Mode.WORK },
-            { Mode.INIT, Mode.WORK }
-        };
-
+        /// <inheritdoc/>
         public void Init(PluginInitContext context)
         {
-            this.currentMode = Mode.INIT;
-            this.timer = new Timer(TimerCallback);
             _context = context;
+            _engine = new Engine();
+            _resultFactory = new ResultFactory(_engine);
         }
 
+        /// <inheritdoc/>
         public List<Result> Query(Query query)
         {
-            Result result = new Result();
-            result.RoundedIcon = true;
-            result.IcoPath = "Images/icon.png";
-
-            if (!isRunning)
-            {
-                result.Title = $"No session";
-            }
-            else
-            {
-                result.Title = $"{this.currentMode} {GetTimeLeft()}";
-            }
-
-            if (query.Search.ToLower() == "start")
-            {
-                result.Title = $"Start";
-                result.SubTitle = $"Start session";
-                result.Action = e =>
-                {
-                    this.isRunning = true;
-                    StartTimer();
-                    return true;
-                };
-            }
-
-            if (query.Search.ToLower() == "stop")
-            {
-                result.Title = $"Stop";
-                result.SubTitle = $"Stop session";
-                result.Action = e =>
-                {
-                    this.isRunning = false;
-                    this.currentMode = Mode.INIT;
-                    new ToastContentBuilder()
-                        .AddText("Session stopped!")
-                        .Show();
-
-                    this.timer.Change(Timeout.Infinite, Timeout.Infinite);
-                    return true;
-                };
-            }
-
-            if (query.Search.ToLower() == "skip")
-            {
-                result.Title = $"Skip";
-                result.SubTitle = $"Skip to next pomodoro or break";
-                result.Action = e =>
-                {
-                    StartTimer();
-                    return true;
-                };
-            }
-
+            Result result = _resultFactory.Create(query);
             List<Result> output = new List<Result>();
             output.Add(result);
             return output;
-        }
-
-        private Result GenerateResult(string title)
-        {
-            Result result = new Result();
-            result.RoundedIcon = true;
-            result.IcoPath = "Images/icon.png";
-            result.Title = $"{title}";
-            result.SubTitle = $"{title} session";
-
-            return result;
-        }
-
-        private string GetTimeLeft()
-        {
-            if (this.currentMode == Mode.INIT) return "INIT";
-
-            TimeSpan timeSpent = DateTime.Now - this.timeSinceModeStart;
-            TimeSpan timeLeft = TimeSpan.FromMinutes(currentMode == Mode.WORK ? workDurationMins / 60 / 1000 : breakDurationMins / 60 / 1000) - timeSpent;
-
-
-
-            return $"{timeLeft.Minutes.ToString().PadLeft(2, '0')}:{timeLeft.Seconds.ToString().PadLeft(2, '0')}";
-        }
-
-        private void StartTimer()
-        {
-            ToastContentBuilder toast = new ToastContentBuilder();
-
-            this.timeSinceModeStart = DateTime.Now;
-            if (!isRunning)
-            {
-                toast.AddText("Session stopped!");
-                this.timer.Change(Timeout.Infinite, Timeout.Infinite);
-                this.currentMode = Mode.INIT;
-            }
-
-            this.currentMode = nextMode[currentMode];
-            if (currentMode == Mode.WORK) {
-                timer.Change(workDurationMins, Timeout.Infinite);
-                toast.AddText("Work start!");
-            }
-            else
-            {
-                timer.Change(breakDurationMins, Timeout.Infinite);
-                toast.AddText("Time for a break!");
-            }
-            toast.Show();
-        }
-        private void TimerCallback(object state)
-        {
-            StartTimer();
         }
     }
 }
