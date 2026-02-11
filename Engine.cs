@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Windows.UI.Notifications;
 
 namespace Flow.Launcher.Plugin.Pomodoro;
 
@@ -63,31 +64,45 @@ public class Engine
     /// <summary>
     /// Gets the time left in the current phase.
     /// </summary>
-    /// <returns>Minutes and seconds in formatted into a string</returns>
-    public string GetTimeLeft()
+    /// <returns>A TimeSpan representing the time left in the current phase</returns>
+    public TimeSpan GetTimeLeft()
     {
-        if (_currentPhase == Phase.INIT) return "No session";
-
         TimeSpan timeLeft;
         if (IsPaused)
         {
-            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - _elapsedTimeInPhase;
+            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - GetTimeElapsedInCurrentPhase();
         }
         else
         {
-            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - (DateTime.Now - _phaseStartTime + _elapsedTimeInPhase);
+            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - GetTimeElapsedInCurrentPhase();
         }
 
-        return $"{timeLeft.Minutes.ToString().PadLeft(2, '0')}:{timeLeft.Seconds.ToString().PadLeft(2, '0')}";
+        return timeLeft;
+    }
+
+    /// <summary>
+    /// Gets the time elapsed in the current phase.
+    /// </summary>
+    /// <returns>A TimeSpan representing the time elapsed in the current phase</returns>
+    public TimeSpan GetTimeElapsedInCurrentPhase()
+    {
+        if (IsPaused)
+        {
+            return _elapsedTimeInPhase;
+        }
+        else
+        {
+            return DateTime.Now - _phaseStartTime + _elapsedTimeInPhase;
+        }
     }
 
     /// <summary>
     /// Returns the current phase.
     /// </summary>
     /// <returns>The string representation of the current phase</returns>
-    public string GetCurrentPhase()
+    public Phase GetCurrentPhase()
     {
-        return _currentPhase.ToString();
+        return _currentPhase;
     }
 
     private void SwitchTimerToNextPhase()
@@ -196,7 +211,30 @@ public class Engine
     /// <summary>
     /// Gets the status of the current session.
     /// </summary>
-    public void GetSessionStatus()
+    
+    public class StatusNotificationData
+    {
+        /// <summary>
+        /// Current phase of the session (WORK, BREAK, or INIT)
+        /// </summary>
+        public Phase CurrentPhase { get; set; }
+        /// <summary>
+        /// Time elapsed in the current phase
+        /// </summary>
+        public TimeSpan TimeElapsedInPhase { get; set; }
+        /// <summary>
+        /// Total duration of the current phase in seconds
+        /// </summary>
+        public int CurrentPhaseDurationSeconds { get; set; }
+        /// <summary>
+        /// Indicates whether the session is currently paused
+        /// </summary>
+        public bool IsPaused { get; set; }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public void DisplaySessionStatus()
     {
         if (_currentPhase == Phase.INIT)
         {
@@ -204,13 +242,15 @@ public class Engine
             return;
         }
 
-        string status = $"{(_currentPhase == Phase.WORK ? "WORKING" : "ON BREAK")} for {GetTimeLeft()}";
-        if (IsPaused)
+        StatusNotificationData data = new StatusNotificationData
         {
-            status = "PAUSED - " + status;
-        }
+            CurrentPhase = _currentPhase,
+            TimeElapsedInPhase = GetTimeElapsedInCurrentPhase(),
+            CurrentPhaseDurationSeconds = _phaseDurationsSeconds[_currentPhase],
+            IsPaused = IsPaused
+        };
 
-        NotificationManager.Show(status);
+        NotificationManager.ShowStatus(data);
     }
 
     private void TimerCallback(object state)

@@ -1,3 +1,6 @@
+using System;
+using static Flow.Launcher.Plugin.Pomodoro.Engine;
+
 namespace Flow.Launcher.Plugin.Pomodoro;
 
 /// <summary>
@@ -32,7 +35,7 @@ public class ResultFactory
         }
         else
         {
-            result.Title = $"{(_engine.IsPaused ? "PAUSED " : "")}{_engine.GetCurrentPhase()} {_engine.GetTimeLeft()}";
+            result.Title = $"Session in progress ({(_engine.IsPaused ? "PAUSED" : "RUNNING")})";
         }
 
         if (query.Search.ToLower() == "start")
@@ -85,7 +88,7 @@ public class ResultFactory
             result.SubTitle = $"Show session status";
             result.Action = e =>
             {
-                _engine.GetSessionStatus();
+                _engine.DisplaySessionStatus();
                 return true;
             };
         }
