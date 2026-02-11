@@ -1,6 +1,3 @@
-using System;
-using Flow.Launcher.Plugin;
-
 namespace Flow.Launcher.Plugin.Pomodoro;
 
 /// <summary>
@@ -81,6 +78,18 @@ public class ResultFactory
                 return true;
             };
         }
+
+        if (query.Search.ToLower() == "status")
+        {
+            result.Title = $"Status";
+            result.SubTitle = $"Show session status";
+            result.Action = e =>
+            {
+                _engine.GetSessionStatus();
+                return true;
+            };
+        }
+
         return result;
     }
 }

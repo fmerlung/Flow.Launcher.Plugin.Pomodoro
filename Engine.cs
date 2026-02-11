@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Flow.Launcher.Plugin.Pomodoro;
 
@@ -192,6 +191,26 @@ public class Engine
         {
             _phaseDurationsSeconds[phase] = minutes * 60;
         }
+    }
+
+    /// <summary>
+    /// Gets the status of the current session.
+    /// </summary>
+    public void GetSessionStatus()
+    {
+        if (_currentPhase == Phase.INIT)
+        {
+            NotificationManager.Show("No session in progress!");
+            return;
+        }
+
+        string status = $"{(_currentPhase == Phase.WORK ? "WORKING" : "ON BREAK")} for {GetTimeLeft()}";
+        if (IsPaused)
+        {
+            status = "PAUSED - " + status;
+        }
+
+        NotificationManager.Show(status);
     }
 
     private void TimerCallback(object state)

@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Flow.Launcher.Plugin;
-using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Flow.Launcher.Plugin.Pomodoro
 {
