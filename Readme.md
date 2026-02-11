@@ -1,17 +1,22 @@
 Flow.Launcher.Plugin.Pomodoro
 ==================
 
-A simple plugin based on the pomodoro time management technique.
+A plugin for the Flow Launcher, based on the [pomodoro time management technique](https://en.wikipedia.org/wiki/Pomodoro_Technique).
 
-A work duration a.k.a "pomodoro" is 25 minutes, while a break is 5 minutes.
 
 ### Usage
 
-    po
-    - shows the current session and the time left.
+When the user runs 'po start' a new session is created. A session is understood as a sequence of 'work' and 'break' phases, alternating between the two indefinitely.
+
+The default duration a work phase is 25 minutes, while a break phase is 5 minutes.
+
+#### Commands
 
     po start
     - starts a new session or continues a paused session.
+
+    po status
+    - displays the status of the current session.
 
     po pause
     - pausing the current session.
