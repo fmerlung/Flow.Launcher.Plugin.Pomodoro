@@ -10,7 +10,7 @@ When the user runs 'po start' a new session is created. A session is understood 
 
 The default duration a work phase is 25 minutes, while a break phase is 5 minutes.
 
-#### Commands
+### Commands
 
     po start
     - starts a new session or resumes a paused session.
