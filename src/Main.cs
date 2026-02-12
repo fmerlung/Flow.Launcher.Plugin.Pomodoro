@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Flow.Launcher.Plugin;
+using Flow.Launcher.Plugin.Pomodoro.src.Commands;
 
 namespace Flow.Launcher.Plugin.Pomodoro
 {
@@ -10,22 +11,31 @@ namespace Flow.Launcher.Plugin.Pomodoro
     {
         private PluginInitContext _context;
         private Engine _engine;
+        private QueryParser _queryParser;
         private ResultFactory _resultFactory;
+
+        private List<IAppCommand> _commands;
 
         /// <inheritdoc/>
         public void Init(PluginInitContext context)
         {
             _context = context;
-            _engine = new Engine();
-            _resultFactory = new ResultFactory(_engine);
+            _commands = CommandLoader.LoadAll();
+            _queryParser = new QueryParser(_commands);
+            _engine = new Engine(_commands);
+            _resultFactory = new ResultFactory(_engine, _commands);
         }
 
         /// <inheritdoc/>
         public List<Result> Query(Query query)
         {
-            Result result = _resultFactory.Create(query);
+            List<IAppCommand> matchedCommands = _queryParser.Parse(query);
+
             List<Result> output = new List<Result>();
-            output.Add(result);
+            foreach (IAppCommand command in matchedCommands)
+            {
+                output.Add(_resultFactory.Create(command));
+            }
             return output;
         }
     }

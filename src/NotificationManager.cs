@@ -22,7 +22,7 @@ public static class NotificationManager
             .AddText(message)
             .Show();
         
-            clearTimer.Change(2 * 1000 + 500, Timeout.Infinite);
+            clearTimer.Change(3 * 1000, Timeout.Infinite);
     }
 
     /// <summary>

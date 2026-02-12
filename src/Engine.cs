@@ -6,7 +6,7 @@ using Windows.UI.Notifications;
 namespace Flow.Launcher.Plugin.Pomodoro;
 
 /// <summary>
-/// The main engine for the Pomodoro timer, managing the timer and notifications.
+/// The main engine for the Pomodoro timer.
 /// </summary>
 public class Engine
 {
@@ -53,11 +53,15 @@ public class Engine
         { Phase.INIT, Phase.WORK }
     };
 
+    private List<IAppCommand> _commands;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Engine"/> class.
     /// </summary>
-    public Engine()
+    /// <param name="commands">The list of available app commands</param>
+    public Engine(List<IAppCommand> commands)
     {
+        _commands = commands;
         _timer = new Timer(TimerCallback);
     }
 
@@ -166,7 +170,7 @@ public class Engine
     /// <summary>
     /// Skips to the next phase of a session.
     /// </summary>
-    public void SkipSession()
+    public void SkipPhase()
     {
         if (_currentPhase == Phase.INIT)
         {
@@ -231,14 +235,15 @@ public class Engine
         /// </summary>
         public bool IsPaused { get; set; }
     }
+
     /// <summary>
-    /// 
+    /// Displays the status of the current session in a notification.
     /// </summary>
     public void DisplaySessionStatus()
     {
         if (_currentPhase == Phase.INIT)
         {
-            NotificationManager.Show("No session in progress!");
+            NotificationManager.Show("No session in progress!\nRun 'po start' to start a new session.");
             return;
         }
 
