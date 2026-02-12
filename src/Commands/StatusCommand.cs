@@ -11,7 +11,7 @@ public class StatusCommand : IAppCommand
     public string CommandString {get;} = "status";
 
     /// <inheritdoc/>
-    public string DisplayTitle {get;}= "Show Status";
+    public string DisplayTitle {get;}= "Show status";
 
     /// <inheritdoc/>
     public string DisplaySubtitle {get;} = "Show session status";

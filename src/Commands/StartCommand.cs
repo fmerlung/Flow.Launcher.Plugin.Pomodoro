@@ -11,10 +11,10 @@ public class StartCommand : IAppCommand
     public string CommandString {get;} = "start";
 
     /// <inheritdoc/>
-    public string DisplayTitle {get;}= "Start Session";
+    public string DisplayTitle {get;}= "Start session";
 
     /// <inheritdoc/>
-    public string DisplaySubtitle {get;} = "Start a new Pomodoro session";
+    public string DisplaySubtitle {get;} = "Start or resume a session";
 
     /// <inheritdoc/>
     public void Execute(Engine engine)

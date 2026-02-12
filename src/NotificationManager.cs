@@ -17,12 +17,14 @@ public static class NotificationManager
     /// <param name="message"></param>
     public static void Show(string message)
     {
+        ClearHistory(null);
+
         new ToastContentBuilder()
             .AddHeader("pomodoro_notification", "🍅 Pomodoro", "")
             .AddText(message)
             .Show();
         
-            clearTimer.Change(3 * 1000, Timeout.Infinite);
+        clearTimer.Change(3 * 1000, Timeout.Infinite);
     }
 
     /// <summary>
@@ -31,6 +33,8 @@ public static class NotificationManager
     /// <param name="data">Data object with the session status information</param>
     public static void ShowStatus(StatusNotificationData data)
     {
+        ClearHistory(null);
+
         string timeElapsedString = $"{data.TimeElapsedInPhase.Minutes.ToString().PadLeft(2, '0')}:{data.TimeElapsedInPhase.Seconds.ToString().PadLeft(2, '0')}";
         string phaseDurationString = $"{(data.CurrentPhaseDurationSeconds / 60).ToString().PadLeft(2, '0')}:{(data.CurrentPhaseDurationSeconds % 60).ToString().PadLeft(2, '0')}";
 

@@ -1,6 +1,7 @@
 ### v0.3.0
 
 - Improved status notification by adding progress bar and detailed info.
+- Added fuzzy search when entering plugin commands
 
 ### v0.2.0
 

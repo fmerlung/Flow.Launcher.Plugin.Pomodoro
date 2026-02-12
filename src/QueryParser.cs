@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace Flow.Launcher.Plugin.Pomodoro;
 
@@ -25,19 +26,27 @@ public class QueryParser
     /// <returns></returns>
     public List<IAppCommand> Parse(Query query)
     {
-        // Do fuzzy search using Levenshtein distance and set a threshold for the max distance allowed,
-        //   since we don't want to return all commands all the time.
         // Check if command is allowed in current context, e.g. "start" should not be allowed in an unpaused session.
-        List<IAppCommand> matchedCommands = new List<IAppCommand>();
+        if (query.Search.Length == 0)
+        {
+            return new List<IAppCommand>();
+        }
 
+        Fastenshtein.Levenshtein lev = new Fastenshtein.Levenshtein(query.Search.ToLower());
+
+        List<(IAppCommand command, int distance)> matchedCommands = new List<(IAppCommand command, int distance)>();
         foreach (IAppCommand command in _commands)
         {
-            if (query.Search.ToLower() == command.CommandString)
+            int maxLength = Math.Min(query.Search.Length, command.CommandString.Length);
+            int distance = lev.DistanceFrom(command.CommandString.Substring(0, maxLength).ToLower());
+            if (distance <= 1)
             {
-                matchedCommands.Add(command);
+                matchedCommands.Add((command, distance));
             }
         }
 
-        return matchedCommands;
+        List<IAppCommand> sortedCommands = matchedCommands.OrderBy(x => x.distance).ToList().ConvertAll(x => x.command);
+
+        return sortedCommands;
     }
 }

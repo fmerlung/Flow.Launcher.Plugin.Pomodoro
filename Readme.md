@@ -13,7 +13,7 @@ The default duration a work phase is 25 minutes, while a break phase is 5 minute
 #### Commands
 
     po start
-    - starts a new session or continues a paused session.
+    - starts a new session or resumes a paused session.
 
     po status
     - displays the status of the current session.

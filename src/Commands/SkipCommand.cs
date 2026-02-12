@@ -11,10 +11,10 @@ public class SkipCommand : IAppCommand
     public string CommandString {get;} = "skip";
 
     /// <inheritdoc/>
-    public string DisplayTitle {get;}= "Skip current Phase";
+    public string DisplayTitle {get;}= "Skip phase";
 
     /// <inheritdoc/>
-    public string DisplaySubtitle {get;} = "Skip the current Pomodoro phase";
+    public string DisplaySubtitle {get;} = "Skip to next phase in session";
 
     /// <inheritdoc/>
     public void Execute(Engine engine)

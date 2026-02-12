@@ -31,12 +31,12 @@ namespace Flow.Launcher.Plugin.Pomodoro
         {
             List<IAppCommand> matchedCommands = _queryParser.Parse(query);
 
-            List<Result> output = new List<Result>();
+            List<Result> results = new List<Result>();
             foreach (IAppCommand command in matchedCommands)
             {
-                output.Add(_resultFactory.Create(command));
+                results.Add(_resultFactory.Create(command));
             }
-            return output;
+            return results;
         }
     }
 }

@@ -11,10 +11,10 @@ public class StopCommand : IAppCommand
     public string CommandString {get;} = "stop";
 
     /// <inheritdoc/>
-    public string DisplayTitle {get;}= "Stop Session";
+    public string DisplayTitle {get;}= "Stop session";
 
     /// <inheritdoc/>
-    public string DisplaySubtitle {get;} = "Stop the current Pomodoro session";
+    public string DisplaySubtitle {get;} = "Stop the current session";
 
     /// <inheritdoc/>
     public void Execute(Engine engine)
