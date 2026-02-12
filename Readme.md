@@ -1,7 +1,7 @@
 Flow.Launcher.Plugin.Pomodoro
 ==================
 
-A plugin for the Flow Launcher, based on the [pomodoro time management technique](https://en.wikipedia.org/wiki/Pomodoro_Technique).
+A plugin for [Flow Launcher](https://github.com/Flow-Launcher/Flow.Launcher), based on the [Pomodoro Technique](https://en.wikipedia.org/wiki/Pomodoro_Technique).
 
 
 ### Usage
