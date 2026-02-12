@@ -1,5 +1,3 @@
-using System;
-
 namespace Flow.Launcher.Plugin.Pomodoro.src.Commands;
 
 /// <summary>

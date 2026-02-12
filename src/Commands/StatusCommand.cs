@@ -1,5 +1,3 @@
-using System;
-
 namespace Flow.Launcher.Plugin.Pomodoro.src.Commands;
 
 /// <summary>
@@ -11,10 +9,10 @@ public class StatusCommand : IAppCommand
     public string CommandString {get;} = "status";
 
     /// <inheritdoc/>
-    public string DisplayTitle {get;}= "Show status";
+    public string DisplayTitle {get;}= "Status display";
 
     /// <inheritdoc/>
-    public string DisplaySubtitle {get;} = "Show session status";
+    public string DisplaySubtitle {get;} = "Display session status";
 
     /// <inheritdoc/>
     public void Execute(Engine engine)

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using static Flow.Launcher.Plugin.Pomodoro.Engine;
 
 namespace Flow.Launcher.Plugin.Pomodoro;
 

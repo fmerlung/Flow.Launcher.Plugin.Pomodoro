@@ -29,7 +29,7 @@ namespace Flow.Launcher.Plugin.Pomodoro
         /// <inheritdoc/>
         public List<Result> Query(Query query)
         {
-            List<IAppCommand> matchedCommands = _queryParser.Parse(query);
+            List<IAppCommand> matchedCommands = _queryParser.Parse(query, _engine.GetCurrentPhase(), _engine.IsPaused);
 
             List<Result> results = new List<Result>();
             foreach (IAppCommand command in matchedCommands)

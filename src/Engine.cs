@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Windows.UI.Notifications;
 
 namespace Flow.Launcher.Plugin.Pomodoro;
 

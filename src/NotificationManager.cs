@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Notifications;
 using static Flow.Launcher.Plugin.Pomodoro.Engine;
