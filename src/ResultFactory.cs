@@ -26,13 +26,15 @@ public class ResultFactory
     /// Creates a result object based on the incoming command.
     /// </summary>
     /// <param name="command">The command to create a result for</param>
+    /// <param name="score"></param>
     /// <returns></returns>
-    public Result Create(IAppCommand command)
+    public Result Create(IAppCommand command, int score)
     {
         Result result = new Result();
         result.IcoPath = "Images/icon.png";
         result.Title = command.DisplayTitle;
         result.SubTitle = command.DisplaySubtitle;
+        result.Score = score;
         result.Action = e =>
         {
             command.Execute(_engine);

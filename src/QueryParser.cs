@@ -28,11 +28,11 @@ public class QueryParser
     /// <param name="currentPhase">Current phase.</param>
     /// <param name="isPaused">Indicates if the session is paused.</param>
     /// <returns></returns>
-    public List<IAppCommand> Parse(Query query, Phase currentPhase, bool isPaused)
+    public List<(IAppCommand command, int score)> Parse(Query query, Phase currentPhase, bool isPaused)
     {
         if (query.Search.Length == 0)
         {
-            return new List<IAppCommand>();
+            return new List<(IAppCommand, int)>();
         }
 
         Fastenshtein.Levenshtein lev = new Fastenshtein.Levenshtein(query.Search.ToLower());
@@ -42,20 +42,27 @@ public class QueryParser
         {
             int maxLength = Math.Min(query.Search.Length, command.CommandString.Length);
             int distance = lev.DistanceFrom(command.CommandString.Substring(0, maxLength).ToLower());
-            if (distance <= 2 && IsCommandAllowed(command, currentPhase, isPaused))
+            if (distance <= 1 && IsCommandAllowed(command, currentPhase, isPaused))
             {
                 matchedCommands.Add((command, distance));
             }
         }
 
         // Something is wrong with the prefix matching, as sometimes the same result is locked in the first place despite spelling out another command.
-        // Maybe use score instead?
+        // 'sk' leads to 'status' for some reason
         List<IAppCommand> sortedCommands = matchedCommands
         .OrderByDescending(x => x.command.CommandString.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)) == 
-            query.FirstSearch.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)))
-        .OrderBy(x => x.distance).ToList().ConvertAll(x => x.command);
+            query.Search.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)) ? 1 : 0)
+        .ThenBy(x => x.distance).ToList().ConvertAll(x => x.command);
 
-        return sortedCommands;
+        List<(IAppCommand, int score)> sortedCommandsWithScore = new List<(IAppCommand, int score)>();
+
+        for (int i = 0; i < sortedCommands.Count; i++)
+        {
+            sortedCommandsWithScore.Add((sortedCommands[i], sortedCommands.Count - i));
+        }
+
+        return sortedCommandsWithScore;
     }
 
     private bool IsCommandAllowed(IAppCommand command, Phase currentPhase, bool isPaused)
