@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using Flow.Launcher.Plugin.Pomodoro.src.Commands;
@@ -49,8 +48,11 @@ public class QueryParser
             }
         }
 
+        // Something is wrong with the prefix matching, as sometimes the same result is locked in the first place despite spelling out another command.
+        // Maybe use score instead?
         List<IAppCommand> sortedCommands = matchedCommands
-        .OrderByDescending(x => x.command.CommandString[0] == query.Search[0])
+        .OrderByDescending(x => x.command.CommandString.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)) == 
+            query.FirstSearch.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)))
         .OrderBy(x => x.distance).ToList().ConvertAll(x => x.command);
 
         return sortedCommands;

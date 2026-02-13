@@ -69,19 +69,9 @@ public class Engine
     /// Gets the time left in the current phase.
     /// </summary>
     /// <returns>A TimeSpan representing the time left in the current phase</returns>
-    public TimeSpan GetTimeLeft()
+    public TimeSpan GetTimeLeftInPhase()
     {
-        TimeSpan timeLeft;
-        if (IsPaused)
-        {
-            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - GetTimeElapsedInCurrentPhase();
-        }
-        else
-        {
-            timeLeft = TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - GetTimeElapsedInCurrentPhase();
-        }
-
-        return timeLeft;
+        return TimeSpan.FromSeconds(_phaseDurationsSeconds[_currentPhase]) - GetTimeElapsedInCurrentPhase();
     }
 
     /// <summary>
@@ -116,7 +106,11 @@ public class Engine
         _elapsedTimeInPhase = TimeSpan.Zero;
 
         StartTimer(_phaseDurationsSeconds[_currentPhase]);
-        NotificationManager.Show($"{_currentPhase.ToString().ToUpperInvariant()} start!");
+        string phaseEmoji = _currentPhase == Phase.WORK ? "⚙" : "☕";
+        string phaseName = _currentPhase.ToString();
+        string phaseNameCapitalized = char.ToUpper(phaseName[0]) + phaseName.Substring(1).ToLower();
+
+        NotificationManager.Show($"{phaseEmoji} {phaseNameCapitalized} start!");
     }
 
     /// <summary>
@@ -132,18 +126,18 @@ public class Engine
             _phaseStartTime = DateTime.Now;
             _elapsedTimeInPhase = TimeSpan.Zero;
             StartTimer(_phaseDurationsSeconds[_currentPhase]);
-            NotificationManager.Show("Session started!");
+            NotificationManager.Show("⏱ Session started!");
         }
         else if (IsPaused)
         {
             IsPaused = false;
             _phaseStartTime = DateTime.Now;
             StartTimer(_phaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
-            NotificationManager.Show("Session resumed!");
+            NotificationManager.Show("⚙ Session resumed!");
         }
         else
         {
-            NotificationManager.Show("Session already in progress!");
+            NotificationManager.Show("⛔ Session already in progress!");
         }
     }
 
@@ -164,7 +158,7 @@ public class Engine
         _currentPhase = Phase.INIT;
         StopTimer();
 
-        NotificationManager.Show("Session stopped!");
+        NotificationManager.Show("⏱ Session stopped!");
     }
 
     /// <summary>
@@ -184,7 +178,7 @@ public class Engine
         IsPaused = false;
 
         StartTimer(_phaseDurationsSeconds[_currentPhase] - (int)_elapsedTimeInPhase.TotalSeconds);
-        NotificationManager.Show($"Skipped to {_currentPhase.ToString().ToLower()}!");
+        NotificationManager.Show($"🏃‍♂️ Skipped to {_currentPhase.ToString().ToLower()}!");
 
     }
 
@@ -196,7 +190,7 @@ public class Engine
         IsPaused = true;
         _elapsedTimeInPhase += DateTime.Now - _phaseStartTime;
         StopTimer();
-        NotificationManager.Show("Session paused!");
+        NotificationManager.Show("⏱ Session paused!");
     }
 
     /// <summary>
