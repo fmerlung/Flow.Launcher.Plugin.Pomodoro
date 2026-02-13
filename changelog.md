@@ -1,4 +1,7 @@
 ### v1.0.0
+- Fixed bug where the result fuzzy search sorting would overwrite itself.
+- Added 'help' command.
+- Refined notifications
 
 ### v0.3.0
 - Improved status notification by adding progress bar and detailed info.
