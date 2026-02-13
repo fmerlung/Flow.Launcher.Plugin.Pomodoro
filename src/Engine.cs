@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Flow.Launcher.Plugin.Pomodoro;
@@ -272,4 +273,16 @@ public class Engine
         _timer.Change(Timeout.Infinite, Timeout.Infinite);
     }
 
+    /// <summary>
+    /// Opens the help page for the plugin in the default web browser.
+    /// </summary>
+    public void ShowHelp()
+    {
+        ProcessStartInfo processStartInfo = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = "https://github.com/fmerlung/Flow.Launcher.Plugin.Pomodoro/blob/main/Readme.md",
+        };
+        Process.Start(processStartInfo);
+    }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using Flow.Launcher.Plugin.Pomodoro.src.Commands;
@@ -30,7 +31,6 @@ public class QueryParser
     /// <returns></returns>
     public List<IAppCommand> Parse(Query query, Phase currentPhase, bool isPaused)
     {
-        // Check if command is allowed in current context, e.g. "start" should not be allowed in an unpaused session.
         if (query.Search.Length == 0)
         {
             return new List<IAppCommand>();
@@ -43,19 +43,26 @@ public class QueryParser
         {
             int maxLength = Math.Min(query.Search.Length, command.CommandString.Length);
             int distance = lev.DistanceFrom(command.CommandString.Substring(0, maxLength).ToLower());
-            if (distance <= 1 && IsCommandAllowed(command, currentPhase, isPaused))
+            if (distance <= 2 && IsCommandAllowed(command, currentPhase, isPaused))
             {
                 matchedCommands.Add((command, distance));
             }
         }
 
-        List<IAppCommand> sortedCommands = matchedCommands.OrderBy(x => x.distance).ToList().ConvertAll(x => x.command);
+        List<IAppCommand> sortedCommands = matchedCommands
+        .OrderByDescending(x => x.command.CommandString[0] == query.Search[0])
+        .OrderBy(x => x.distance).ToList().ConvertAll(x => x.command);
 
         return sortedCommands;
     }
 
     private bool IsCommandAllowed(IAppCommand command, Phase currentPhase, bool isPaused)
     {
+        if (command is HelpCommand)
+        {
+            return true;
+        }
+
         if (currentPhase == Phase.INIT)
         {
             return command is StartCommand;

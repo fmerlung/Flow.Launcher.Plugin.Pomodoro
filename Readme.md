@@ -26,3 +26,6 @@ The default duration a work phase is 25 minutes, while a break phase is 5 minute
 
     po skip
     - skips to the next part of the session, whether it be a pomodoro or a break.
+
+    po help
+    - opens the browser directed to this repository.

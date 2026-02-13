@@ -4,7 +4,7 @@
     "Name": "Pomodoro",
     "Description": "A Pomodoro timer plugin for Flow Launcher",
     "Author": "fmerlung",
-    "Version": "0.3.0",
+    "Version": "1.0.0",
     "Language": "csharp",
     "Website": "https://github.com/fmerlung/Flow.Launcher.Plugin.Pomodoro",
     "IcoPath": "Images\\icon.png",

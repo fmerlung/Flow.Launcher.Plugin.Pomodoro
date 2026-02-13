@@ -1,3 +1,5 @@
+### v1.0.0
+
 ### v0.3.0
 - Improved status notification by adding progress bar and detailed info.
 - Refactored commands system, improving maintainability.

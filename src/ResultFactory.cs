@@ -25,17 +25,17 @@ public class ResultFactory
     /// <summary>
     /// Creates a result object based on the incoming command.
     /// </summary>
-    /// <param name="matchedCommand">The command to create a result for</param>
+    /// <param name="command">The command to create a result for</param>
     /// <returns></returns>
-    public Result Create(IAppCommand matchedCommand)
+    public Result Create(IAppCommand command)
     {
         Result result = new Result();
         result.IcoPath = "Images/icon.png";
-        result.Title = matchedCommand.DisplayTitle;
-        result.SubTitle = matchedCommand.DisplaySubtitle;
+        result.Title = command.DisplayTitle;
+        result.SubTitle = command.DisplaySubtitle;
         result.Action = e =>
         {
-            matchedCommand.Execute(_engine);
+            command.Execute(_engine);
             return true;
         };
 
