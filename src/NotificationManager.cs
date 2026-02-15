@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.Notifications;
 using static Flow.Launcher.Plugin.Pomodoro.Engine;
@@ -41,7 +42,7 @@ public static class NotificationManager
 
         new ToastContentBuilder()
             .AddText("🍅 Pomodoro")
-            .AddProgressBar(title: "Session status", 
+            .AddProgressBar(title: "Session status",
                             value: data.TimeElapsedInPhase.TotalSeconds / data.CurrentPhaseDurationSeconds,
                             valueStringOverride: $"{timeElapsedString} / {phaseDurationString}",
                             status: statusString + (data.CurrentPhase == Phase.WORK ? "⚙ WORKING..." : "☕ ON BREAK..."))

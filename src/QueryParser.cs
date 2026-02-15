@@ -30,11 +30,6 @@ public class QueryParser
     /// <returns></returns>
     public List<(IAppCommand command, int score)> Parse(Query query, Phase currentPhase, bool isPaused)
     {
-        if (query.Search.Length == 0)
-        {
-            return new List<(IAppCommand, int)>();
-        }
-
         Fastenshtein.Levenshtein lev = new Fastenshtein.Levenshtein(query.Search.ToLower());
 
         List<(IAppCommand command, int distance)> matchedCommands = new List<(IAppCommand command, int distance)>();
@@ -48,12 +43,10 @@ public class QueryParser
             }
         }
 
-        // Something is wrong with the prefix matching, as sometimes the same result is locked in the first place despite spelling out another command.
-        // 'sk' leads to 'status' for some reason
         List<IAppCommand> sortedCommands = matchedCommands
         .OrderByDescending(x => x.command.CommandString.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)) == 
             query.Search.Substring(0, Math.Min(query.Search.Length, x.command.CommandString.Length)) ? 1 : 0)
-        .ThenBy(x => x.distance).ToList().ConvertAll(x => x.command);
+        .ToList().ConvertAll(x => x.command);
 
         List<(IAppCommand, int score)> sortedCommandsWithScore = new List<(IAppCommand, int score)>();
 
