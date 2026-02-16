@@ -45,6 +45,8 @@ jobs:
           body: ""
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -53,3 +55,5 @@ jobs:
           asset_path: Pomodoro.zip
           asset_name: Flow.Launcher.Plugin.Pomodoro-${{ github.ref_name }}.zip
           asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
