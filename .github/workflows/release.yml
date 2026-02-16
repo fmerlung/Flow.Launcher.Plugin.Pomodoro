@@ -34,7 +34,36 @@ jobs:
         run: |
           if (Test-Path release.zip) { Remove-Item release.zip }
           Compress-Archive -Path ./output/* -DestinationPath release.zip
-          Rename-Item -Path release.zip -NewName "Pomodoro.zip"
+
+      - name: Extract changelog for tag
+        id: changelog
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $lines = Get-Content changelog.md -ErrorAction SilentlyContinue
+          if (-not $lines) {
+            $body = "Release $tag"
+          } else {
+            $startIdx = $null
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+              if ($lines[$i] -match "^\s*###\s*(v?$tag)\s*$") { $startIdx = $i; break }
+            }
+            if ($startIdx -eq $null) {
+              $body = "Release $tag"
+            } else {
+              $j = $startIdx + 1
+              $collected = @()
+              while ($j -lt $lines.Count -and -not ($lines[$j] -match '^\s*###\s+')) {
+                if ($lines[$j].Trim()) { $collected += $lines[$j] }
+                $j++
+              }
+              $body = ($collected -join "`n").Trim()
+              if ([string]::IsNullOrWhiteSpace($body)) { $body = "Release $tag" }
+            }
+          }
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "body<<EOF"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value $body
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "EOF"
 
       - name: Create GitHub Release
         id: create_release
@@ -42,7 +71,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           release_name: ${{ github.ref_name }}
-          body: ""
+          body: ${{ steps.changelog.outputs.body }}
           draft: false
           prerelease: false
         env:
@@ -52,8 +81,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Pomodoro.zip
-          asset_name: Flow.Launcher.Plugin.Pomodoro-${{ github.ref_name }}.zip
+          asset_path: release.zip
+          asset_name: Pomodoro-${{ github.ref_name }}.zip
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
